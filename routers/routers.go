@@ -17,6 +17,8 @@ var V2 *gin.RouterGroup
 func BootGin() {
 	router := gin.Default()
 	V1 = router.Group("v1")
+	V2 = router.Group("v2")
+	// v1 路由模块
 	{
 		V1.GET("/login", func(ctx *gin.Context) {
 			ctx.JSON(200, gin.H{
@@ -24,7 +26,7 @@ func BootGin() {
 			})
 		})
 	}
-	V2 = router.Group("v2")
+	// v2 路由模块
 	{
 		login.HanderLogin(V2)
 	}
