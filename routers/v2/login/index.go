@@ -2,13 +2,14 @@ package login
 
 import (
 	"aliangtect/go-admin/db"
+	"aliangtect/go-admin/utils"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Users struct {
-	pswmatch bool
+	Pswmatch bool
 }
 
 // request body JSON
@@ -28,7 +29,10 @@ func HanderLogin(router *gin.RouterGroup) {
 		form := Form{}
 		if err := ctx.ShouldBind(&form); err == nil {
 			db.DB.Raw("SELECT (pwd = crypt(?, pwd)) AS pswmatch FROM users where name = ?;", form.Pwd, form.Name).Scan(&users)
-			fmt.Println(users.pswmatch)
+			token, err := utils.GenerateJwt()
+			fmt.Printf("%v err", err)
+			fmt.Println()
+			utils.ParseJwt(token)
 		}
 		ctx.JSON(200, gin.H{
 			"message": "pong3",
