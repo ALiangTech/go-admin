@@ -24,24 +24,38 @@ type Form struct {
 // 处理用户登录
 var users Users
 
-// db.DB.Raw("SELECT id, name FROM users").Scan(&users)
-// fmt.Println(users)
 func HanderLogin(router *gin.RouterGroup) {
 	router.POST("/login", func(ctx *gin.Context) {
 		form := Form{}
 		if err := ctx.ShouldBind(&form); err == nil {
 			message := validateInputNotEmpty(form)
-			fmt.Println(message)
-			fmt.Println("message")
-			db.DB.Raw("SELECT (pwd = crypt(?, pwd)) AS pswmatch FROM users where name = ?;", form.Pwd, form.Name).Scan(&users)
-			token, err := utils.GenerateJwt()
-			fmt.Printf("%v err", err)
-			fmt.Println()
-			utils.ParseJwt(token)
+			if len(message) != 0 { // 说明存在错误信息
+				ctx.JSON(200, gin.H{
+					"code":    1,
+					"message": message,
+					"data":    "",
+				})
+			} else {
+				validateInputPwd(form, &users)
+				if users.Pswmatch { // 密码正确
+					token, _ := utils.GenerateJwt()
+					ctx.JSON(200, gin.H{
+						"code":    200,
+						"message": "",
+						"data": gin.H{
+							"toke": token,
+						},
+					})
+				} else {
+					ctx.JSON(200, gin.H{
+						"code":    1,
+						"message": createMessage(),
+						"data":    "",
+					})
+				}
+
+			}
 		}
-		ctx.JSON(200, gin.H{
-			"message": "pong3",
-		})
 	})
 }
 
@@ -56,11 +70,22 @@ func randName() (string, string) {
 	return messageSet[firstIndex], messageSet[lastIndex]
 }
 
+// 构建错误信息字符串
+func createMessage() string {
+	m1, m2 := randName()
+	return fmt.Sprintf("%s或%s错误", m1, m2)
+}
+
 // 检测用户输入的数据是否为空
 func validateInputNotEmpty(form Form) string {
 	if len(form.Name) == 0 || len(form.Pwd) == 0 { // 说明用户输入的数据 有问题
-		m1, m2 := randName()
-		return fmt.Sprintf("%s或%s错误", m1, m2)
+		return createMessage()
 	}
 	return ""
+}
+
+// 执行sql 校验密码是否正确 并查找用户
+
+func validateInputPwd(form Form, users *Users) {
+	db.DB.Raw("SELECT (pwd = crypt(?, pwd)) AS pswmatch FROM users where name = ?;", form.Pwd, form.Name).Scan(users)
 }
