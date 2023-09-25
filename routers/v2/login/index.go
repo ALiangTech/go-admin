@@ -29,17 +29,19 @@ var users Users
 func HanderLogin(router *gin.RouterGroup) {
 	router.POST("/login", func(ctx *gin.Context) {
 		// form := Form{}
+		// 1 请求内容类型是否正确
+		// 2 请求内容数据能否正确解析
+		// 3 请求内容是否正确
+		// 4 创建jwt 给前端
 		validContentType := &ValidContentType{}
-
 		validBody := &ValidBody{}
-		validContentType.SetNext(validBody)
-
+		validBodyFieldValue := &ValidBodyFieldValue{}
 		validBodyCorrectness := &ValidBodyCorrectness{}
-		validBody.SetNext(validBodyCorrectness)
-
 		createJwt := &CreateJwt{}
+		validContentType.SetNext(validBody)
+		validBody.SetNext(validBodyFieldValue)
+		validBodyFieldValue.SetNext(validBodyCorrectness)
 		validBodyCorrectness.SetNext(createJwt)
-
 		validContentType.Execute(ctx)
 	})
 }
@@ -82,8 +84,10 @@ func (vc *ValidContentType) Execute(ctx *gin.Context) {
 	}
 }
 func (vc *ValidContentType) SetNext(next Valid) {
-	vc.SetNext(next)
+	vc.next = next
 }
+
+////////////////////////////////////////////
 
 // 校验请求体body 数据字段是否完整
 
@@ -93,13 +97,13 @@ type ValidBody struct {
 
 func (vb *ValidBody) Execute(ctx *gin.Context) {
 	form := Form{}
-	err := ctx.ShouldBindJSON(form)
+	err := ctx.ShouldBindJSON(&form)
 	if err == nil {
 		vb.next.Execute(ctx)
 	} else {
 		ctx.JSON(http.StatusOK, gin.H{
 			"status":  200,
-			"message": fmt.Sprintf("发送的数据：%v", err),
+			"message": fmt.Sprintf("请求的数据：%v", err),
 			"data":    "",
 		})
 	}
@@ -141,6 +145,7 @@ func validateInputNotEmpty(form Form) (string, error) {
 }
 func (vf *ValidBodyFieldValue) Execute(ctx *gin.Context) {
 	form := Form{}
+	ctx.ShouldBindJSON(&form)
 	msg, err := validateInputNotEmpty(form)
 	if err == nil {
 		vf.next.Execute(ctx)
@@ -152,6 +157,12 @@ func (vf *ValidBodyFieldValue) Execute(ctx *gin.Context) {
 		})
 	}
 }
+
+func (vf *ValidBodyFieldValue) SetNext(next Valid) {
+	vf.next = next
+}
+
+////////////////////////////////////////////
 
 // 校验请求体数据 正确性
 
@@ -166,6 +177,7 @@ func validateInputPwd(form Form, users *Users) {
 
 func (vbc *ValidBodyCorrectness) Execute(ctx *gin.Context) {
 	form := Form{}
+	ctx.ShouldBindJSON(&form)
 	validateInputPwd(form, &users)
 	if users.Pswmatch {
 		vbc.next.Execute(ctx)
@@ -182,6 +194,7 @@ func (vbc *ValidBodyCorrectness) SetNext(next Valid) {
 	vbc.next = next
 }
 
+////////////////////////////////////////////
 // 创建jwt
 
 type CreateJwt struct {
