@@ -9,10 +9,10 @@ import (
 
 const (
 	HOST     = "localhost"
-	PORT     = 5432
-	USER     = "core"
-	PASSWORD = "hj1234"
-	NAME     = "postgres"
+	PORT     = 9002
+	USER     = "goadmin"
+	PASSWORD = "1234"
+	NAME     = "admin"
 	MAXIDLE  = 10
 	MAXOPEN  = 100
 )

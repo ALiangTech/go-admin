@@ -10,10 +10,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 type Users struct {
 	Pswmatch bool
+	id       int
 }
 
 // request body JSON
@@ -77,7 +79,7 @@ func (vc *ValidContentType) Execute(ctx *gin.Context) {
 		vc.next.Execute(ctx)
 	} else {
 		ctx.JSON(http.StatusOK, gin.H{
-			"status":  200,
+			"status":  10001,
 			"message": "请求体内容类型错误",
 			"data":    "",
 		})
@@ -97,12 +99,12 @@ type ValidBody struct {
 
 func (vb *ValidBody) Execute(ctx *gin.Context) {
 	form := Form{}
-	err := ctx.ShouldBindJSON(&form)
+	err := ctx.ShouldBindBodyWith(&form, binding.JSON)
 	if err == nil {
 		vb.next.Execute(ctx)
 	} else {
 		ctx.JSON(http.StatusOK, gin.H{
-			"status":  200,
+			"status":  10002,
 			"message": fmt.Sprintf("请求的数据：%v", err),
 			"data":    "",
 		})
@@ -145,13 +147,14 @@ func validateInputNotEmpty(form Form) (string, error) {
 }
 func (vf *ValidBodyFieldValue) Execute(ctx *gin.Context) {
 	form := Form{}
-	ctx.ShouldBindJSON(&form)
+	ctx.ShouldBindBodyWith(&form, binding.JSON)
+	fmt.Println(form, "form")
 	msg, err := validateInputNotEmpty(form)
 	if err == nil {
 		vf.next.Execute(ctx)
 	} else {
 		ctx.JSON(http.StatusOK, gin.H{
-			"status":  200,
+			"status":  10003,
 			"message": fmt.Sprintf("请求数据值：%v", msg),
 			"data":    "",
 		})
@@ -172,18 +175,19 @@ type ValidBodyCorrectness struct {
 
 // 执行sql 校验密码是否正确 并查找用户
 func validateInputPwd(form Form, users *Users) {
-	db.DB.Raw("SELECT (pwd = crypt(?, pwd)) AS pswmatch FROM users where name = ?;", form.Pwd, form.Name).Scan(users)
+	db.DB.Raw("SELECT (pwd = crypt(?, pwd)) AS pswmatch, id FROM users where name = ?;", form.Pwd, form.Name).Scan(users)
 }
 
 func (vbc *ValidBodyCorrectness) Execute(ctx *gin.Context) {
 	form := Form{}
-	ctx.ShouldBindJSON(&form)
+	ctx.ShouldBindBodyWith(&form, binding.JSON)
 	validateInputPwd(form, &users)
+	fmt.Println(users)
 	if users.Pswmatch {
 		vbc.next.Execute(ctx)
 	} else {
 		ctx.JSON(http.StatusOK, gin.H{
-			"status":  200,
+			"status":  10004,
 			"message": createMessage(),
 			"data":    "",
 		})
@@ -202,13 +206,19 @@ type CreateJwt struct {
 }
 
 func (cj *CreateJwt) Execute(ctx *gin.Context) {
-	jwt, err := utils.GenerateJwt()
+	jwt, err := utils.GenerateJwt(users.id)
 	if err == nil {
-		fmt.Println(jwt)
-	} else {
 		ctx.JSON(http.StatusOK, gin.H{
 			"status":  200,
-			"message": "登录失败jwt",
+			"message": "",
+			"data": gin.H{
+				"token": jwt,
+			},
+		})
+	} else {
+		ctx.JSON(http.StatusOK, gin.H{
+			"status":  10005,
+			"message": "创建jwt失败",
 			"data":    "",
 		})
 	}
