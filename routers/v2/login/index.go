@@ -15,7 +15,7 @@ import (
 
 type Users struct {
 	Pswmatch bool
-	id       int
+	Uuid     string
 }
 
 // request body JSON
@@ -175,14 +175,14 @@ type ValidBodyCorrectness struct {
 
 // 执行sql 校验密码是否正确 并查找用户
 func validateInputPwd(form Form, users *Users) {
-	db.DB.Raw("SELECT (pwd = crypt(?, pwd)) AS pswmatch, id FROM users where name = ?;", form.Pwd, form.Name).Scan(users)
+	db.DB.Raw("SELECT (pwd = crypt(?, pwd)) AS pswmatch, uuid FROM users where name = ?;", form.Pwd, form.Name).Scan(users)
 }
 
 func (vbc *ValidBodyCorrectness) Execute(ctx *gin.Context) {
 	form := Form{}
 	ctx.ShouldBindBodyWith(&form, binding.JSON)
 	validateInputPwd(form, &users)
-	fmt.Println(users)
+	fmt.Println(users, "users")
 	if users.Pswmatch {
 		vbc.next.Execute(ctx)
 	} else {
@@ -206,7 +206,7 @@ type CreateJwt struct {
 }
 
 func (cj *CreateJwt) Execute(ctx *gin.Context) {
-	jwt, err := utils.GenerateJwt(users.id)
+	jwt, err := utils.GenerateJwt(users.Uuid)
 	if err == nil {
 		ctx.JSON(http.StatusOK, gin.H{
 			"status":  200,

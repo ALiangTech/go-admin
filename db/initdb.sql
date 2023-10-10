@@ -2,6 +2,8 @@
 create role goadmin with login password '1234' superuser createdb;
 -- 创建数据库
 create database goAdmin;
+-- uuid
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- 创建用户表
 create table if not exists users (
     id serial primary key,
@@ -13,11 +15,13 @@ create table if not exists users (
 -- 其实updatedOn 是可以为null
 
 alter table if exists users alter updatedOn drop not null;
+-- 添加uuid 列
+alter table if exists users add if not exists uuid UUID default gen_random_uuid() not null; 
 
 -- 启动加密 pgcrypto模块
 create extension pgcrypto
 insert into users (name, pwd, createdOn) values (
-    "admin",
-    crypt("1234", gen_salt("bf")),
+    'admin',
+    crypt('1234', gen_salt('bf')),
     CURRENT_TIMESTAMP
 );

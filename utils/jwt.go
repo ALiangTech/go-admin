@@ -12,15 +12,15 @@ import (
 var signingKey = []byte("#@-s889vske2!)}")
 
 type CustomClaim struct {
-	Id int `json:"id"`
+	Uuid string `json:"uuid"`
 	jwt.RegisteredClaims
 }
 
 // 生成jwt
 
-func GenerateJwt(id int) (string, error) {
+func GenerateJwt(uuid string) (string, error) {
 	clamis := CustomClaim{
-		id,
+		uuid,
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(10 * time.Minute)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -43,7 +43,7 @@ func ParseJwt(jwtToken string) {
 		return signingKey, nil
 	})
 	if claims, ok := token.Claims.(*CustomClaim); ok && token.Valid {
-		fmt.Printf("%v %vss", claims.Id, claims.RegisteredClaims.IssuedAt)
+		fmt.Printf("%v %vss", claims.Uuid, claims.RegisteredClaims.IssuedAt)
 	} else {
 		fmt.Println(err, "err")
 	}
