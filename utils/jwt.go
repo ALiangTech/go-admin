@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"fmt"
+	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -38,13 +38,19 @@ func GenerateJwt(uuid string) (string, error) {
 
 // 解析/验证jwt
 
-func ParseJwt(jwtToken string) {
+func ParseJwt(jwtToken string) (*CustomClaim, error) {
+	payload := CustomClaim{}
+	var ok bool
 	token, err := jwt.ParseWithClaims(jwtToken, &CustomClaim{}, func(t *jwt.Token) (interface{}, error) {
 		return signingKey, nil
 	})
-	if claims, ok := token.Claims.(*CustomClaim); ok && token.Valid {
-		fmt.Printf("%v %vss", claims.Uuid, claims.RegisteredClaims.IssuedAt)
+	if err != nil {
+		return &payload, errors.New("jwt 认证失败")
+	}
+	claims, ok := token.Claims.(*CustomClaim)
+	if ok && token.Valid {
+		return claims, nil
 	} else {
-		fmt.Println(err, "err")
+		return claims, errors.New("jwt 认证失败")
 	}
 }

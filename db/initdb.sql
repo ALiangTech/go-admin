@@ -25,3 +25,19 @@ insert into users (name, pwd, createdOn) values (
     crypt('1234', gen_salt('bf')),
     CURRENT_TIMESTAMP
 );
+
+
+-- 权限
+-- 用户表 角色表 权限表
+-- 角色表
+create table if not exists roles (
+    id serial primary key,
+    name varchar(20) not null,
+    description varchar(50) null
+)
+-- 权限表
+create table if not exists permissions (
+    id serial primary key,
+    name varchar(20) not null,
+    description varchar(50) null,
+)
