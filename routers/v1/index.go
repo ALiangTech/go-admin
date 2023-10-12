@@ -13,5 +13,6 @@ var V1 *gin.RouterGroup
 func RegisterV1(router *gin.Engine) {
 	V1 = router.Group("v1")
 	V1.Use(middlewares.AuthMiddleware())
+	V1.Use(middlewares.ValidateUserPermissions())
 	user.RetrieveUser(V1)
 }

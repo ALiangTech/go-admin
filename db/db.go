@@ -18,6 +18,7 @@ const (
 )
 
 var DB *gorm.DB
+var DSN = fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s sslmode=disable", HOST, PORT, USER, NAME, PASSWORD)
 
 func init() {
 	dsn := fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s sslmode=disable", HOST, PORT, USER, NAME, PASSWORD)
