@@ -47,6 +47,14 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+	rules := [][]string{
+		{"user", "/user", "get"},
+	}
+	_, err = e.AddPolicies(rules)
+	if err != nil {
+		panic(err)
+	}
+	// e.AddGroupingPolicy()
 	e.LoadPolicy()
 	Enforcer = e
 }

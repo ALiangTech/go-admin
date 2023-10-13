@@ -2,7 +2,7 @@ package v1
 
 import (
 	"aliangtect/go-admin/routers/v1/middlewares"
-	user "aliangtect/go-admin/routers/v1/routes"
+	routes "aliangtect/go-admin/routers/v1/routes"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,5 +14,5 @@ func RegisterV1(router *gin.Engine) {
 	V1 = router.Group("v1")
 	V1.Use(middlewares.AuthMiddleware())
 	V1.Use(middlewares.ValidateUserPermissions())
-	user.RetrieveUser(V1)
+	routes.RetrieveUser(V1)
 }
