@@ -48,7 +48,10 @@ func init() {
 		panic(err)
 	}
 	rules := [][]string{
-		{"user", "/user", "get"},
+		{"user", "/user", "get"},         // 用户接口
+		{"users", "users", "read"},       // 用户管理菜单
+		{"accounts", "accounts", "read"}, // 账号管理菜单
+		{"roles", "roles", "read"},       // 角色管理菜单
 	}
 	_, err = e.AddPolicies(rules)
 	if err != nil {
@@ -56,6 +59,7 @@ func init() {
 	}
 	// e.AddGroupingPolicy()
 	e.LoadPolicy()
+	e.SavePolicy()
 	Enforcer = e
 }
 

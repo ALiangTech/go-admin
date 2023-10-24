@@ -35,6 +35,9 @@ create table if not exists roles (
     name varchar(20) not null,
     description varchar(50) null
 )
+
+alter table roles add if not exists policy varchar[] not null;
+
 -- 权限表
 create table if not exists permissions (
     id serial primary key,
