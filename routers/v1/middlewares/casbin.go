@@ -26,7 +26,7 @@ g = _, _
 e = some(where (p.eft == allow))
 
 [matchers]
-m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act
+m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act || r.sub == "root"
 `
 
 var Enforcer *casbin.Enforcer

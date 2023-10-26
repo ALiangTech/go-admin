@@ -14,21 +14,21 @@ func AuthMiddleware() gin.HandlerFunc {
 		// 从header里面获取jwt
 		// 解析 jwt 并设置一个变量下去方便后续的接口从jwt中读取数据
 
-		jwt := ctx.GetHeader("Authorization")
+		Authorization := ctx.GetHeader("Authorization")
 
-		if len(jwt) == 0 {
+		if len(Authorization) == 0 {
 			// 说明没有携带jwt 这个时候返回认证失败
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"status":  http.StatusUnauthorized,
-				"message": "登录令牌认证失败",
+				"message": "登录令牌认证失败1",
 				"data":    "",
 			})
 		} else {
-			payload, err := utils.ParseJwt(jwt)
+			payload, err := utils.ParseJwt(Authorization)
 			if err != nil {
 				ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 					"status":  http.StatusUnauthorized,
-					"message": "登录令牌认证失败",
+					"message": "登录令牌认证失败2",
 					"data":    "",
 				})
 			}

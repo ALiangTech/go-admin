@@ -15,6 +15,8 @@ create table if not exists users (
 -- 其实updatedOn 是可以为null
 
 alter table if exists users alter updatedOn drop not null;
+alter table if exists users add if not exists superadmin varchar null; -- 是否是超级管理员
+alter table if exists users add if not exists roldId int not null; -- 角色id
 -- 添加uuid 列
 alter table if exists users add if not exists uuid UUID default gen_random_uuid() not null; 
 
@@ -44,3 +46,5 @@ create table if not exists permissions (
     name varchar(20) not null,
     description varchar(50) null,
 )
+
+-- 菜单表

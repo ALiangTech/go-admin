@@ -29,6 +29,8 @@ func delRole(id string) error {
 
 func RetrieveRole(router *gin.RouterGroup) {
 	// 创建角色
+	// 获取角色name desc policy
+	// 判断policy 是否是 当前用户权限下的权限 比如 我用于 1 2 两个权限 那么 合法的policy 只能是 1 2  不能含有3
 	router.POST("/role", func(ctx *gin.Context) {
 		role := Role{}
 		ctx.ShouldBindJSON(&role)
@@ -36,13 +38,13 @@ func RetrieveRole(router *gin.RouterGroup) {
 		if err != nil {
 			// 获取角色name 权限policy
 			ctx.JSON(200, gin.H{
-				"message": "角色创建成功",
+				"message": "角色创建失败",
 				"role":    role,
 			})
 		} else {
 			// 获取角色name 权限policy
 			ctx.JSON(200, gin.H{
-				"message": "角色创建失败",
+				"message": "角色创建成功",
 				"role":    role,
 			})
 		}
