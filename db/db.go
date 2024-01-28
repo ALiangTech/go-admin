@@ -8,11 +8,11 @@ import (
 )
 
 const (
-	HOST     = "localhost"
-	PORT     = 9002
+	HOST     = "139.196.89.94"
+	PORT     = 5433
 	USER     = "goadmin"
-	PASSWORD = "1234"
-	NAME     = "admin"
+	PASSWORD = "1234@qwer"
+	NAME     = "db8eb6e724c4644762bb7c1eb08c023f88admins"
 	MAXIDLE  = 10
 	MAXOPEN  = 100
 )

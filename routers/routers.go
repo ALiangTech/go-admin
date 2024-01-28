@@ -2,8 +2,9 @@ package routers
 
 import (
 	v1 "aliangtect/go-admin/routers/v1"
-	"aliangtect/go-admin/routers/v2/login"
+	v2 "aliangtect/go-admin/routers/v2"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,14 +14,11 @@ var V2 *gin.RouterGroup
 
 func BootGin() {
 	router := gin.Default()
-	V2 = router.Group("v2")
+	router.Use(cors.Default())
 	// v1 路由模块
-	{
-		v1.RegisterV1(router)
-	}
+	v1.RegisterV1(router)
 	// v2 路由模块
-	{
-		login.HanderLogin(V2)
-	}
+	v2.RegisterV2(router)
+	// 启动
 	router.Run(":9001")
 }

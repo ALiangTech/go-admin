@@ -1,4 +1,4 @@
-package login
+package routesV2
 
 import (
 	"aliangtect/go-admin/db"
@@ -28,7 +28,7 @@ type Form struct {
 // 处理用户登录
 var users Users
 
-func HanderLogin(router *gin.RouterGroup) {
+func RetrieveLogin(router *gin.RouterGroup) {
 	router.POST("/login", func(ctx *gin.Context) {
 		// form := Form{}
 		// 1 请求内容类型是否正确
