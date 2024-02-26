@@ -16,4 +16,5 @@ func RegisterV1(router *gin.Engine) {
 	V1.Use(middlewares.ValidateUserPermissions())
 	routes.RetrieveUser(V1)
 	routes.RetrieveRole(V1)
+	routes.RetrievePermission(V1)
 }

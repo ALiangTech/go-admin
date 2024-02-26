@@ -19,17 +19,21 @@ func AuthMiddleware() gin.HandlerFunc {
 		if len(Authorization) == 0 {
 			// 说明没有携带jwt 这个时候返回认证失败
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"status":  http.StatusUnauthorized,
-				"message": "登录令牌认证失败1",
-				"data":    "",
+				"error": gin.H{
+					"code":    http.StatusUnauthorized,
+					"message": "登录令牌认证失败1",
+				},
+				"data": "",
 			})
 		} else {
 			payload, err := utils.ParseJwt(Authorization)
 			if err != nil {
 				ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-					"status":  http.StatusUnauthorized,
-					"message": "登录令牌认证失败2",
-					"data":    "",
+					"error": gin.H{
+						"code":    http.StatusUnauthorized,
+						"message": "登录令牌认证失败2",
+					},
+					"data": "",
 				})
 			}
 			ctx.Set("userUuid", payload.Uuid)
