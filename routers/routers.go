@@ -9,10 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 路由组v2 无需登录就能访问
-
-var V2 *gin.RouterGroup
-
 func BootGin() {
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
