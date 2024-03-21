@@ -2,9 +2,9 @@ package routes
 
 import (
 	"aliangtect/go-admin/db"
+	"aliangtect/go-admin/routers/v1/middlewares"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lib/pq"
 )
 
 type Role struct {
@@ -15,9 +15,11 @@ type Role struct {
 
 // 向数据库插入数据
 
-func interRole(role Role) error {
-	res := db.DB.Exec("INSERT INTO roles (name,description,policy) values (?, ?, ?)", role.Name, role.Description, pq.Array(role.Policy))
-	return res.Error
+func interRole(role Role) (bool, error) {
+	//db.DB.Exec("INSERT INTO roles (name,description,policy) values (?, ?, ?)", role.Name, role.Description, pq.Array(role.Policy))
+	// 通过casbin api 向casbin_rule 插入一个角色
+	e := middlewares.Enforcer
+	return e.AddRolesForUser(role.Name, role.Policy)
 }
 
 // 删除数据库数据
@@ -34,7 +36,7 @@ func RetrieveRole(router *gin.RouterGroup) {
 	router.POST("/role", func(ctx *gin.Context) {
 		role := Role{}
 		ctx.ShouldBindJSON(&role)
-		err := interRole(role)
+		res, err := interRole(role)
 		if err != nil {
 			// 获取角色name 权限policy
 			ctx.JSON(200, gin.H{
@@ -46,6 +48,7 @@ func RetrieveRole(router *gin.RouterGroup) {
 			ctx.JSON(200, gin.H{
 				"message": "角色创建成功",
 				"role":    role,
+				"result":  res,
 			})
 		}
 	})

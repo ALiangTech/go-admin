@@ -1,11 +1,11 @@
 package types
 
-// 接口统一返回类型
+// ApiError 接口统一返回类型
 type ApiError struct {
-	Code    int
-	Message string
+	Code    int    `json:"code"`
+	Message string `json:"message"`
 }
 type ApiResponse struct {
-	Data  any
-	Error ApiError
+	Data  any       `json:"data"`
+	Error *ApiError `json:"error"`
 }
