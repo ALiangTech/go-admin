@@ -3,6 +3,7 @@ package routes
 import (
 	"aliangtect/go-admin/db"
 	"aliangtect/go-admin/routers/v1/middlewares"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -32,25 +33,31 @@ func delRole(id string) error {
 func RetrieveRole(router *gin.RouterGroup) {
 	// 创建角色
 	// 获取角色name desc policy
-	// 判断policy 是否是 当前用户权限下的权限 比如 我用于 1 2 两个权限 那么 合法的policy 只能是 1 2  不能含有3
 	router.POST("/role", func(ctx *gin.Context) {
 		role := Role{}
 		ctx.ShouldBindJSON(&role)
-		res, err := interRole(role)
-		if err != nil {
-			// 获取角色name 权限policy
+		isExistName := isExistRoleName(role.Name)
+		if isExistName {
+			// 存在相同角色
 			ctx.JSON(200, gin.H{
-				"message": "角色创建失败",
+				"message": "角色创建失败,角色名称不能重复",
 				"role":    role,
-			})
-		} else {
-			// 获取角色name 权限policy
-			ctx.JSON(200, gin.H{
-				"message": "角色创建成功",
-				"role":    role,
-				"result":  res,
 			})
 		}
+		// if res != nil {
+		// 	// 获取角色name 权限policy
+		// 	ctx.JSON(200, gin.H{
+		// 		"message": "角色创建失败",
+		// 		"role":    role,
+		// 	})
+		// } else {
+		// 	// 获取角色name 权限policy
+		// 	ctx.JSON(200, gin.H{
+		// 		"message": "角色创建成功",
+		// 		"role":    role,
+		// 		"result":  res,
+		// 	})
+		// }
 	})
 	// 删除角色
 	router.DELETE("/role/:id", func(ctx *gin.Context) {
@@ -70,4 +77,10 @@ func RetrieveRole(router *gin.RouterGroup) {
 	})
 }
 
-// 根据权限表 构建权限树
+// 判断角色是否存在
+func isExistRoleName(name string) bool {
+	res := db.DB.Exec("SELECT * from roles where name = ?", name)
+	fmt.Printf("res %+v", res)
+	fmt.Println("---")
+	return res.RowsAffected > 0 // 如果大于 说明存在相同的角色名称
+}
