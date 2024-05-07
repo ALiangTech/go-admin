@@ -22,7 +22,8 @@ type register_user struct {
 }
 
 func RetrieveUser(router *gin.RouterGroup) {
-	router.GET("/user", func(ctx *gin.Context) {
+	// 获取当前登录用户信息
+	router.GET("/profile", func(ctx *gin.Context) {
 		uuid, exists := ctx.Get("userUuid")
 		if exists {
 			var user_info user
@@ -75,7 +76,9 @@ func RetrieveUser(router *gin.RouterGroup) {
 		fmt.Println(err)
 
 	})
-
 	// 删除用户 软删除
+	// 获取用户列表 可分页 可查询
+	router.GET("/users", func(ctx *gin.Context) {
 
+	})
 }
