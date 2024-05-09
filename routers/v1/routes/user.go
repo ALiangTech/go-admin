@@ -88,7 +88,7 @@ func RetrieveUser(router *gin.RouterGroup) {
 		Createdon time.Time `json:"createdOn"`
 	}
 	type totalItem struct {
-		Total int `json:"total"`
+		Pagecount int `json:"pageCount"`
 	}
 	router.GET("/users", func(ctx *gin.Context) {
 		// 获取分页数据
@@ -96,17 +96,17 @@ func RetrieveUser(router *gin.RouterGroup) {
 		// page 页码
 		// query 查询
 		// 先判断分页参数
-		limit, _ := strconv.Atoi(ctx.Query("size"))
+		limit, _ := strconv.Atoi(ctx.Query("pageSize"))
 		page, _ := strconv.Atoi(ctx.Query("page"))
 		offset := limit * (page - 1)
 		var data []userItem
 		var total []totalItem
-		db.DB.Raw("select count(*) as total from users").Scan(&total) // 查询total
+		db.DB.Raw("select count(*) as pagecount from users").Scan(&total) // 查询total
 		db.DB.Raw("select * from users order by id limit ? offset ?", limit, offset).Scan(&data)
 		ctx.JSON(http.StatusOK, types.ApiResponse{
 			Data: types.Pagation[userItem]{
-				Record: data,
-				Total:  total[0].Total,
+				Record:    data,
+				PageCount: total[0].Pagecount,
 			},
 		})
 	})

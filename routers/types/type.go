@@ -20,6 +20,6 @@ type ApiQueryRequest struct {
 // 分页统一返回格式
 
 type Pagation[T any] struct {
-	Record []T `json:"record"`
-	Total  int `json:"total"`
+	Record    []T `json:"record"`
+	PageCount int `json:"pageCount"`
 }
