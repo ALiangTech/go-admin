@@ -35,8 +35,8 @@ func RetrieveLogin(router *gin.RouterGroup) {
 			ctx.JSON(http.StatusOK, types.ApiResponse{
 				Data: nil,
 				Error: &types.ApiError{
-					Code:    cerrors.ErrUser,
-					Message: err.Error(),
+					Status:     cerrors.ErrUser,
+					StatusText: err.Error(),
 				},
 			})
 			return
@@ -45,8 +45,8 @@ func RetrieveLogin(router *gin.RouterGroup) {
 			ctx.JSON(http.StatusOK, types.ApiResponse{
 				Data: nil,
 				Error: &types.ApiError{
-					Code:    cerrors.ErrEmptyCredentials,
-					Message: cerrors.StatusText(cerrors.ErrEmptyCredentials),
+					Status:     cerrors.ErrEmptyCredentials,
+					StatusText: cerrors.StatusText(cerrors.ErrEmptyCredentials),
 				},
 			})
 			return
@@ -55,8 +55,8 @@ func RetrieveLogin(router *gin.RouterGroup) {
 		err = AuthenticateUser(inputForm, &users)
 		if err != nil {
 			errorMsg := types.ApiError{
-				Code:    cerrors.ErrUser,
-				Message: err.Error(),
+				Status:     cerrors.ErrUser,
+				StatusText: err.Error(),
 			}
 			ctx.JSON(http.StatusOK, types.ApiResponse{
 				Data:  nil,
@@ -69,8 +69,8 @@ func RetrieveLogin(router *gin.RouterGroup) {
 			ctx.JSON(http.StatusOK, types.ApiResponse{
 				Data: nil,
 				Error: &types.ApiError{
-					Code:    cerrors.ErrGenJwt,
-					Message: cerrors.StatusText(cerrors.ErrGenJwt),
+					Status:     cerrors.ErrGenJwt,
+					StatusText: cerrors.StatusText(cerrors.ErrGenJwt),
 				},
 			})
 			return

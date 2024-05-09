@@ -5,6 +5,8 @@ import (
 	"aliangtect/go-admin/routers/types"
 	"fmt"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -39,8 +41,8 @@ func RetrieveUser(router *gin.RouterGroup) {
 				ctx.JSON(http.StatusOK, types.ApiResponse{
 					Data: nil,
 					Error: &types.ApiError{
-						Code:    0,
-						Message: "用户不存在",
+						Status:     0,
+						StatusText: "用户不存在",
 					},
 				})
 			}
@@ -48,8 +50,8 @@ func RetrieveUser(router *gin.RouterGroup) {
 			ctx.JSON(http.StatusOK, types.ApiResponse{
 				Data: nil,
 				Error: &types.ApiError{
-					Code:    0,
-					Message: "用户不存在",
+					Status:     0,
+					StatusText: "用户不存在",
 				},
 			})
 		}
@@ -62,7 +64,8 @@ func RetrieveUser(router *gin.RouterGroup) {
 		register_user_info := register_user{}
 		err := ctx.ShouldBind(&register_user_info)
 		if err == nil {
-			res := db.DB.Exec("INSERT into users (name,pwd,roldid,createdOn) values (?, crypt(?, gen_salt('bf')),?,now())", register_user_info.Name, register_user_info.Pwd, register_user_info.RoleId)
+			res := db.DB.Exec("INSERT into users (name,pwd,roldid,createdOn) values (?, crypt(?, gen_salt('bf')),?,now())",
+				register_user_info.Name, register_user_info.Pwd, register_user_info.RoleId)
 			if res.RowsAffected == 1 {
 				// 说明插入成功
 				ctx.JSON(http.StatusOK, types.ApiResponse{
@@ -77,8 +80,34 @@ func RetrieveUser(router *gin.RouterGroup) {
 
 	})
 	// 删除用户 软删除
-	// 获取用户列表 可分页 可查询
-	router.GET("/users", func(ctx *gin.Context) {
 
+	// 获取用户列表 可分页 可查询
+	type userItem struct {
+		ID        int       `json:"id"`
+		Name      string    `json:"name"`
+		Createdon time.Time `json:"createdOn"`
+	}
+	type totalItem struct {
+		Total int `json:"total"`
+	}
+	router.GET("/users", func(ctx *gin.Context) {
+		// 获取分页数据
+		// size 数据
+		// page 页码
+		// query 查询
+		// 先判断分页参数
+		limit, _ := strconv.Atoi(ctx.Query("size"))
+		page, _ := strconv.Atoi(ctx.Query("page"))
+		offset := limit * (page - 1)
+		var data []userItem
+		var total []totalItem
+		db.DB.Raw("select count(*) as total from users").Scan(&total) // 查询total
+		db.DB.Raw("select * from users order by id limit ? offset ?", limit, offset).Scan(&data)
+		ctx.JSON(http.StatusOK, types.ApiResponse{
+			Data: types.Pagation[userItem]{
+				Record: data,
+				Total:  total[0].Total,
+			},
+		})
 	})
 }

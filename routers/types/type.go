@@ -2,8 +2,8 @@ package types
 
 // ApiError 接口统一返回类型
 type ApiError struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
+	Status     int    `json:"status"`
+	StatusText string `json:"statusText"`
 }
 type ApiResponse struct {
 	Data  any       `json:"data"`
@@ -15,4 +15,11 @@ type ApiResponse struct {
 type ApiQueryRequest struct {
 	Page int `json:"page"` // 页码
 	Size int `json:"size"` // 一页数据展示多少数量
+}
+
+// 分页统一返回格式
+
+type Pagation[T any] struct {
+	Record []T `json:"record"`
+	Total  int `json:"total"`
 }
