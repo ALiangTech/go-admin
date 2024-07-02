@@ -18,9 +18,9 @@ func BootGin() {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
-	// v1 路由模块
+	// v1 路由模块 需要登录才可以使用的接口
 	v1.RegisterV1(router)
-	// v2 路由模块
+	// v2 路由模块 无需登录就可以使用的接口
 	v2.RegisterV2(router)
 	// 启动
 	router.Run(":9001")

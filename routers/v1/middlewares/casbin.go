@@ -3,6 +3,7 @@ package middlewares
 import (
 	"aliangtect/go-admin/db"
 	"fmt"
+
 	"github.com/casbin/casbin/v2"
 
 	"github.com/casbin/casbin/v2/model"
@@ -26,7 +27,7 @@ g = _, _
 e = some(where (p.eft == allow))
 
 [matchers]
-m = r.sub == p.sub && keyMatch(r.obj, p.obj) && regexMatch(r.act, p.act) || r.sub == "root"
+m = g(r.sub, p.sub) && keyMatch(r.obj, p.obj) && regexMatch(r.act, p.act) || r.sub == "root"
 `
 
 var Enforcer *casbin.Enforcer
@@ -57,10 +58,11 @@ func init() {
 		panic(err)
 	}
 	rules := [][]string{
-		{"account", "/account/*", "(get|post)"}, // 账号管理
-		{"account_add", "/account_add", "post"}, // 账号添加
-		{"account_del", "/account_del", "post"}, // 账号删除
-		{"permission", "/permission", "get"},    // 获取权限
+		{"accounts", "/accounts", "get"},          // 有账号管理权限 则/account/* 请求路径全部有权限
+		{"accounts_post", "/accounts", "post"},    // 账号添加
+		{"accounts_del", "/accounts/*", "delete"}, // 账号删除
+		{"accounts_put", "/accounts/*", "put"},    // 账号更新
+		{"accounts_get", "/accounts/*", "get"},    // 获取某个账号信息
 	}
 	_, err = e.AddPolicies(rules)
 	if err != nil {
