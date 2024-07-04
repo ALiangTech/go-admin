@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/casbin/casbin"
 	"github.com/gin-gonic/gin"
 )
 
@@ -40,6 +39,16 @@ func isExistRoleName(name string) bool {
 	fmt.Printf("res %+v", res)
 	fmt.Println("---")
 	return res.RowsAffected > 0 // 如果大于 说明存在相同的角色名称
+}
+
+// 通过id查询角色信息
+func GetRoleWithID(id int) (Role, error) {
+	var role Role
+	res := db.DB.Raw("SELECT * from roles where id = ?", id).Scan(&role)
+	if res.RowsAffected > 0 {
+		return role, nil
+	}
+	return role, res.Error
 }
 
 /*
@@ -194,7 +203,7 @@ func postRole(role Role) error {
 }
 
 // 检查权限 permission 是否属于当前角色创建人
-func checkPermission(enforcer *casbin.Enforcer, role, permission []string) (bool, error) {
-	// 检查角色是否拥有权限
-	return enforcer.HasPermissionForUser(role, permission)
-}
+// func checkPermission(enforcer *casbin.Enforcer, role, permission []string) (bool, error) {
+// 	// 检查角色是否拥有权限
+// 	return enforcer.HasPermissionForUser(role, permission)
+// }

@@ -4,7 +4,9 @@ import (
 	"aliangtect/go-admin/db"
 	cerrors "aliangtect/go-admin/error"
 	"aliangtect/go-admin/routers/types"
+	"aliangtect/go-admin/routers/v1/routes"
 	"aliangtect/go-admin/utils"
+	"context"
 	"errors"
 	"net/http"
 
@@ -14,6 +16,7 @@ import (
 type Users struct {
 	Pswmatch bool
 	Uuid     string
+	RoleId   int
 }
 
 // request body JSON
@@ -87,12 +90,13 @@ func RetrieveLogin(router *gin.RouterGroup) {
 // 从结构体获取参数
 // 校验从结构体获取的参数
 // sql认证
+// sql 返回用户信息 然后用户信息存放在redis中
 // 返回结果给前端
+var this = context.TODO()
 
 func AuthenticateUser(inputForm Form, userRecord *Users) error {
 	// 准备预处理语句
-	stmt := db.DB.Raw("SELECT (pwd = crypt(?, pwd)) AS pswmatch, uuid FROM users WHERE name = ?;", inputForm.Pwd, inputForm.Name).Scan(userRecord)
-
+	stmt := db.DB.Raw("SELECT (pwd = crypt(?, pwd)) AS pswmatch, uuid, roleId FROM users WHERE name = ?;", inputForm.Pwd, inputForm.Name).Scan(userRecord)
 	// 执行查询
 	if err := stmt.Error; err != nil {
 		return err
@@ -102,6 +106,19 @@ func AuthenticateUser(inputForm Form, userRecord *Users) error {
 	if !userRecord.Pswmatch {
 		return errors.New(cerrors.StatusText(cerrors.ErrUser))
 	}
-
+	// 通过角色id 查询用户角色
+	role, err := routes.GetRoleWithID(userRecord.RoleId)
+	if err != nil {
+		panic(err)
+	}
+	userInfo := map[string]any{
+		"roleId":   userRecord.RoleId,
+		"pswmatch": userRecord.Pswmatch,
+		"roleName": role.Name,
+	}
+	err = db.Redis.HSet(this, userRecord.Uuid, userInfo).Err() // 用户信息存放在redis
+	if err != nil {
+		panic(err)
+	}
 	return nil
 }
